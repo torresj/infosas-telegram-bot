@@ -1,62 +1,69 @@
 package com.torresj.infosas.telegrambot.bots;
 
-import lombok.RequiredArgsConstructor;
+import com.torresj.infosas.telegrambot.services.HandlerMessageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.longpolling.BotSession;
-import org.telegram.telegrambots.longpolling.interfaces.LongPollingUpdateConsumer;
-import org.telegram.telegrambots.longpolling.starter.AfterBotRegistration;
-import org.telegram.telegrambots.longpolling.starter.SpringLongPollingBot;
-import org.telegram.telegrambots.longpolling.util.LongPollingSingleThreadUpdateConsumer;
+import org.telegram.telegrambots.bots.DefaultBotOptions;
+import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
+import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import org.telegram.telegrambots.meta.generics.TelegramClient;
+
+import java.util.List;
+
+import static com.torresj.infosas.telegrambot.models.Commands.COMMANDS;
 
 
 @Component
 @Slf4j
-@RequiredArgsConstructor
-public class InfosasBot implements SpringLongPollingBot, LongPollingSingleThreadUpdateConsumer {
+public class InfosasBot extends TelegramLongPollingBot {
 
-    @Value("${telegram.bot.token}")
-    private final String token;
+    private final HandlerMessageService handlerMessageService;
 
-    private final TelegramClient telegramClient;
+    private final String name;
 
-    @Override
-    public String getBotToken() {
-        return token;
-    }
+    public InfosasBot(
+            @Value("${telegram.bot.name}") String name,
+            @Value("${telegram.bot.token}") String token,
+            HandlerMessageService handlerMessageService,
+            DefaultBotOptions options
+    ){
+        super(options, token);
+        this.name = name;
+        this.handlerMessageService = handlerMessageService;
 
-    @Override
-    public LongPollingUpdateConsumer getUpdatesConsumer() {
-        return this;
-    }
-
-    @Override
-    public void consume(Update update) {
-        if (update.hasMessage() && update.getMessage().hasText()) {
-            // Set variables
-            String message_text = update.getMessage().getText();
-            long chat_id = update.getMessage().getChatId();
-
-            SendMessage message = SendMessage // Create a message object
-                    .builder()
-                    .chatId(chat_id)
-                    .text(message_text)
-                    .build();
-            try {
-                telegramClient.execute(message); // Sending our message object to user
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
-            }
+        try {
+            List<BotCommand> commands = COMMANDS.values().stream()
+                    .map(info -> new BotCommand(info.command(), info.description()))
+                    .toList();
+            this.execute(new SetMyCommands(commands, new BotCommandScopeDefault(), null));
+        } catch (TelegramApiException e) {
+            log.error("Failed to set bot commands: {}", e.getMessage());
         }
     }
 
-    @AfterBotRegistration
-    public void afterRegistration(BotSession botSession) {
-        log.info("Registered bot running state is: {}", botSession.isRunning());
+    @Override
+    public void onUpdateReceived(Update update) {
+        if (update.hasMessage() && update.getMessage().hasText()) {
+         log.info("Update received: {}", update.getMessage().getText());
+         sendMessage(handlerMessageService.handleMessage(update.getMessage()));
+        }
+    }
+
+    @Override
+    public String getBotUsername() {
+        return name;
+    }
+
+    public void sendMessage(SendMessage message) {
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            log.error("Failed to send message to chatId: {} with error: {}", message.getChatId(), e.getMessage());
+        }
     }
 }

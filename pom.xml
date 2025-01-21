@@ -25,8 +25,8 @@
 		<client-certificate-data></client-certificate-data>
 		<client-key-data></client-key-data>
 		<kubernetes-user></kubernetes-user>
-		<telegrambots-springboot-longpolling-starter.version>8.0.0</telegrambots-springboot-longpolling-starter.version>
-		<telegrambots-client.version>8.0.0</telegrambots-client.version>
+		<telegram-bots-starter.version>6.9.7.1</telegram-bots-starter.version>
+		<telegram-bot-abilities.version>8.0.0</telegram-bot-abilities.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -58,13 +58,14 @@
 		</dependency>
 		<dependency>
 			<groupId>org.telegram</groupId>
-			<artifactId>telegrambots-springboot-longpolling-starter</artifactId>
-			<version>${telegrambots-springboot-longpolling-starter.version}</version>
+			<artifactId>telegrambots-spring-boot-starter</artifactId>
+			<version>${telegram-bots-starter.version}</version>
 		</dependency>
+
 		<dependency>
 			<groupId>org.telegram</groupId>
-			<artifactId>telegrambots-client</artifactId>
-			<version>${telegrambots-client.version}</version>
+			<artifactId>telegrambots-abilities</artifactId>
+			<version>${telegram-bot-abilities.version}</version>
 		</dependency>
 	</dependencies>
 
