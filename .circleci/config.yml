@@ -58,7 +58,7 @@ jobs:
       # Install chart
       - run:
           name: Install chart
-          command: helm upgrade infosas-telegram-bot helm/infosas-telegram-bot -n sas --set db.db_user=$DB_USER,db.db_name=$DB_NAME,db.db_password=$DB_PASSWORD --install --kubeconfig=helm/kubeconfig
+          command: helm upgrade infosas-telegram-bot helm/infosas-telegram-bot -n sas --set telegram.bot.name=$BOT_NAME,telegram.bot.token=$BOT_TOKEN --install --kubeconfig=helm/kubeconfig
       # Check deployment
       - run:
           name: Check deployment

@@ -52,6 +52,10 @@ spec:
               value: "{{ .Values.image.version }}"
             - name: SPRING_PROFILES_ACTIVE
               value: "prod"
+            - name: BOT_NAME
+              value: "{{ .Values.telegram.bot.name }}"
+            - name: BOT_TOKEN
+              value: "{{ .Values.telegram.bot.token }}"
             {{ if .Values.cloud.config.enabled -}}
             - name: SPRING_CLOUD_CONFIG_ENABLED
               value: "true"

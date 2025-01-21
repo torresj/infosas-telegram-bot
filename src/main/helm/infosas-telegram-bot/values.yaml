@@ -22,6 +22,11 @@ service:
   type: ClusterIP
   port: 8080
 
+telegram:
+  bot:
+    name:
+    token:
+
 cloud:
   config:
     enabled: false
