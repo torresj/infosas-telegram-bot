@@ -1,0 +1,24 @@
+#Loggin
+logging:
+  config: classpath:logback-spring-local.xml
+
+telegram:
+  bot:
+    token:
+    name:
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+  health:
+    livenessState:
+      enabled: true
+    readinessState:
+      enabled: true

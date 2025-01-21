@@ -1,0 +1,8 @@
+#Loggin
+logging:
+  config: classpath:logback-spring-test.xml
+
+telegram:
+  bot:
+    token: test
+    name: test

@@ -10,31 +10,42 @@
 	</parent>
 	<groupId>com.torresj</groupId>
 	<artifactId>infosas-telegram-bot</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.${revision}</version>
 	<name>infosas-telegram-bot</name>
 	<description>Telegram Bot for monitoring infosas application</description>
-	<url/>
-	<licenses>
-		<license/>
-	</licenses>
-	<developers>
-		<developer/>
-	</developers>
-	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
-	</scm>
+
 	<properties>
+		<revision>0.0-SNAPSHOT</revision>
 		<java.version>21</java.version>
+		<mapstruct.version>1.6.3</mapstruct.version>
+		<jib-maven-plugin.version>3.4.4</jib-maven-plugin.version>
+		<lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
+		<certificate-authority-data></certificate-authority-data>
+		<cluster></cluster>
+		<client-certificate-data></client-certificate-data>
+		<client-key-data></client-key-data>
+		<kubernetes-user></kubernetes-user>
+		<telegrambots-springboot-longpolling-starter.version>8.0.0</telegrambots-springboot-longpolling-starter.version>
+		<telegrambots-client.version>8.0.0</telegrambots-client.version>
 	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter</artifactId>
 		</dependency>
-
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mapstruct</groupId>
+			<artifactId>mapstruct</artifactId>
+			<version>${mapstruct.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
@@ -45,18 +56,50 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.telegram</groupId>
+			<artifactId>telegrambots-springboot-longpolling-starter</artifactId>
+			<version>${telegrambots-springboot-longpolling-starter.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.telegram</groupId>
+			<artifactId>telegrambots-client</artifactId>
+			<version>${telegrambots-client.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+			<resource>
+				<directory>src/main/helm/</directory>
+				<filtering>true</filtering>
+				<targetPath>${project.basedir}/target/helm</targetPath>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven-compiler-plugin.version}</version>
 				<configuration>
 					<annotationProcessorPaths>
 						<path>
+							<groupId>org.mapstruct</groupId>
+							<artifactId>mapstruct-processor</artifactId>
+							<version>${mapstruct.version}</version>
+						</path>
+						<path>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
+							<version>${lombok.version}</version>
+						</path>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok-mapstruct-binding</artifactId>
+							<version>${lombok-mapstruct-binding.version}</version>
 						</path>
 					</annotationProcessorPaths>
 				</configuration>
@@ -72,6 +115,30 @@
 						</exclude>
 					</excludes>
 				</configuration>
+			</plugin>
+			<!-- Jib -->
+			<plugin>
+				<groupId>com.google.cloud.tools</groupId>
+				<artifactId>jib-maven-plugin</artifactId>
+				<version>${jib-maven-plugin.version}</version>
+				<configuration>
+					<container>
+						<ports>
+							<port>8080</port>
+						</ports>
+					</container>
+					<to>
+						<image>registry.torresj.es/infosas-telegram-bot:${project.version}</image>
+					</to>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>build</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
