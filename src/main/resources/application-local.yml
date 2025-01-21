@@ -4,7 +4,7 @@ logging:
 
 telegram:
   bot:
-    token: 7524011962:AAGBWL3TQYqsH34pxBHH6gidEb8tkWZQJ_o
+    token: test
     name: test
 
 management:
