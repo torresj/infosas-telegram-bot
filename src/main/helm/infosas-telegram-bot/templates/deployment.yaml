@@ -56,6 +56,14 @@ spec:
               value: "{{ .Values.telegram.bot.name }}"
             - name: BOT_TOKEN
               value: "{{ .Values.telegram.bot.token }}"
+            - name: RABBITMQ_HOST
+              value: "{{ .Values.rabbitmq.host }}"
+            - name: RABBITMQ_PORT
+              value: "{{ .Values.rabbitmq.port }}"
+            - name: RABBITMQ_USER
+              value: "{{ .Values.rabbitmq.username }}"
+            - name: RABBITMQ_PASSWORD
+              value: "{{ .Values.rabbitmq.password }}"
             {{ if .Values.cloud.config.enabled -}}
             - name: SPRING_CLOUD_CONFIG_ENABLED
               value: "true"

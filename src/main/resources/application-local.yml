@@ -1,10 +1,18 @@
+#Rabbitmq
+spring:
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: test
+    password: test
+
 #Loggin
 logging:
   config: classpath:logback-spring-local.xml
 
 telegram:
   bot:
-    token: test
+    token: 7524011962:AAGBWL3TQYqsH34pxBHH6gidEb8tkWZQJ_o
     name: test
 
 management:

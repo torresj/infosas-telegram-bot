@@ -2,7 +2,10 @@ package com.torresj.infosas.telegrambot.services.impl;
 
 import com.torresj.infosas.telegrambot.models.CommandType;
 import com.torresj.infosas.telegrambot.models.Commands;
-import com.torresj.infosas.telegrambot.services.HandlerMessageService;
+import com.torresj.infosas.telegrambot.models.MessageType;
+import com.torresj.infosas.telegrambot.models.QueueMessage;
+import com.torresj.infosas.telegrambot.services.ProducerService;
+import com.torresj.infosas.telegrambot.services.TelegramHandlerMessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,7 +27,11 @@ import static com.torresj.infosas.telegrambot.models.Commands.COMMANDS;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class HandlerMessageServiceImpl implements HandlerMessageService {
+public class TelegramHandlerMessageServiceImpl implements TelegramHandlerMessageService {
+
+    private final ProducerService producerService;
+
+    private final String ADMIN_USER = "torresjb";
 
     @Override
     public SendMessage handleMessage(Message message) {
@@ -38,6 +45,7 @@ public class HandlerMessageServiceImpl implements HandlerMessageService {
                 case GET_METRICS -> getMetricsHandler(message);
             };
         } catch (IllegalArgumentException e) {
+            log.error(e.getMessage());
             return defaultHandler(message);
         }
     }
@@ -77,13 +85,32 @@ public class HandlerMessageServiceImpl implements HandlerMessageService {
     }
 
     private SendMessage updateHandler(Message message) {
-        return SendMessage.builder()
-                .chatId(message.getChatId())
-                .text("Updated")
-                .build();
+        if(isAdmin(message.getFrom().getUserName())){
+            producerService.sendMessage(
+                    QueueMessage.builder()
+                        .type(MessageType.UPDATE)
+                        .chatId(message.getChatId())
+                        .build()
+            );
+            return SendMessage.builder()
+                    .chatId(message.getChatId())
+                    .text("Updated")
+                    .build();
+        }else{
+            return SendMessage.builder()
+                    .chatId(message.getChatId())
+                    .text("User is not admin. Command not allowed")
+                    .build();
+        }
     }
 
     private SendMessage getMetricsHandler(Message message) {
+        producerService.sendMessage(
+                QueueMessage.builder()
+                    .type(MessageType.METRICS)
+                    .chatId(message.getChatId())
+                    .build()
+        );
         return SendMessage.builder()
                 .chatId(message.getChatId())
                 .text("Metrics")
@@ -98,11 +125,11 @@ public class HandlerMessageServiceImpl implements HandlerMessageService {
 
         KeyboardRow firstRow = new KeyboardRow();
         firstRow.add(Commands.getCommand(START).label());
-        firstRow.add(Commands.getCommand(UPDATE).label());
+        firstRow.add(Commands.getCommand(GET_METRICS).label());
         keyboard.add(firstRow);
 
         KeyboardRow secondRow = new KeyboardRow();
-        secondRow.add(Commands.getCommand(GET_METRICS).label());
+        secondRow.add(Commands.getCommand(UPDATE).label());
         keyboard.add(secondRow);
 
         keyboardMarkup.setKeyboard(keyboard);
@@ -128,5 +155,9 @@ public class HandlerMessageServiceImpl implements HandlerMessageService {
         }
 
         return commandKey;
+    }
+
+    private boolean isAdmin(String user){
+        return ADMIN_USER.equals(user);
     }
 }

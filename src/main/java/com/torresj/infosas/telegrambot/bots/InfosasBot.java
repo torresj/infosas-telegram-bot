@@ -1,6 +1,6 @@
 package com.torresj.infosas.telegrambot.bots;
 
-import com.torresj.infosas.telegrambot.services.HandlerMessageService;
+import com.torresj.infosas.telegrambot.services.TelegramHandlerMessageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -22,19 +22,19 @@ import static com.torresj.infosas.telegrambot.models.Commands.COMMANDS;
 @Slf4j
 public class InfosasBot extends TelegramLongPollingBot {
 
-    private final HandlerMessageService handlerMessageService;
+    private final TelegramHandlerMessageService telegramHandlerMessageService;
 
     private final String name;
 
     public InfosasBot(
             @Value("${telegram.bot.name}") String name,
             @Value("${telegram.bot.token}") String token,
-            HandlerMessageService handlerMessageService,
+            TelegramHandlerMessageService telegramHandlerMessageService,
             DefaultBotOptions options
     ){
         super(options, token);
         this.name = name;
-        this.handlerMessageService = handlerMessageService;
+        this.telegramHandlerMessageService = telegramHandlerMessageService;
 
         try {
             List<BotCommand> commands = COMMANDS.values().stream()
@@ -50,7 +50,7 @@ public class InfosasBot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
          log.info("Update received: {}", update.getMessage().getText());
-         sendMessage(handlerMessageService.handleMessage(update.getMessage()));
+         sendMessage(telegramHandlerMessageService.handleMessage(update.getMessage()));
         }
     }
 

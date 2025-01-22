@@ -27,6 +27,12 @@ telegram:
     name:
     token:
 
+rabbitmq:
+  host:
+  port:
+  username:
+  password:
+
 cloud:
   config:
     enabled: false
