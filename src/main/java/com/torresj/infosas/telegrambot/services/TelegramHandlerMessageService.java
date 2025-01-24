@@ -5,4 +5,5 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 
 public interface TelegramHandlerMessageService {
     SendMessage handleMessage(Message message);
+    SendMessage handleMessage(long chatId, String receivedMessage, String username);
 }

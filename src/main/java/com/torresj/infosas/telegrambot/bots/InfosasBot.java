@@ -49,8 +49,18 @@ public class InfosasBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
-         log.info("Update received: {}", update.getMessage().getText());
+         log.info("Command received: {}", update.getMessage().getText());
          sendMessage(telegramHandlerMessageService.handleMessage(update.getMessage()));
+        } else if (update.hasCallbackQuery()) {
+            var callbackQuery = update.getCallbackQuery();
+            log.info("Callback received: {}", callbackQuery.getData());
+            sendMessage(
+                    telegramHandlerMessageService.handleMessage(
+                            callbackQuery.getMessage().getChatId(),
+                            callbackQuery.getData(),
+                            callbackQuery.getFrom().getUserName()
+                    )
+            );
         }
     }
 

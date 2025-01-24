@@ -12,8 +12,8 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import com.torresj.infosas.telegrambot.models.BotCommandInfo;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,100 +40,112 @@ public class TelegramHandlerMessageServiceImpl implements TelegramHandlerMessage
 
             CommandType command = CommandType.fromString(messageText);
             return switch (command) {
-                case START -> startHandler(message);
-                case UPDATE -> updateHandler(message);
-                case GET_METRICS -> getMetricsHandler(message);
+                case START -> startHandler(message.getChatId());
+                case UPDATE -> updateHandler(message.getChatId(), message.getFrom().getUserName());
+                case GET_METRICS -> getMetricsHandler(message.getChatId());
             };
         } catch (IllegalArgumentException e) {
             log.error(e.getMessage());
-            return defaultHandler(message);
+            return defaultHandler(message.getChatId());
         }
     }
 
-    private SendMessage defaultHandler(Message message) {
-        StringBuilder commands_list = new StringBuilder("Unrecognized command\n");
-        commands_list.append("Available commands:\n");
-        for (BotCommandInfo info : COMMANDS.values()) {
-            commands_list.append(info.command())
-                    .append(" -> ")
-                    .append(info.description())
-                    .append("\n");
-        }
+    @Override
+    public SendMessage handleMessage(long chatId, String receivedMessage, String username) {
+        try {
+            String messageText = getCommandKey(receivedMessage);
 
+            CommandType command = CommandType.fromString(messageText);
+            return switch (command) {
+                case START -> startHandler(chatId);
+                case UPDATE -> updateHandler(chatId, username);
+                case GET_METRICS -> getMetricsHandler(chatId);
+            };
+        } catch (IllegalArgumentException e) {
+            log.error(e.getMessage());
+            return defaultHandler(chatId);
+        }
+    }
+
+    private SendMessage defaultHandler(long chatId) {
         return SendMessage.builder()
-                .chatId(message.getChatId())
-                .text(commands_list.toString())
-                .replyMarkup(getCommandKeyboard())
+                .chatId(chatId)
+                .text("Unrecognized command, try again")
+                .replyMarkup(getInlineKeyboard())
                 .build();
     }
 
-    private SendMessage startHandler(Message message) {
-        StringBuilder commands_list = new StringBuilder("Welcome to Infosas Telegram Bot\n");
-        commands_list.append("Available commands:\n");
-        for (BotCommandInfo info : COMMANDS.values()) {
-            commands_list.append(info.command())
-                    .append(" -> ")
-                    .append(info.description())
-                    .append("\n");
-        }
-
+    private SendMessage startHandler(long chatId) {
         return SendMessage.builder()
-                .chatId(message.getChatId())
-                .text(commands_list.toString())
-                .replyMarkup(getCommandKeyboard())
+                .chatId(chatId)
+                .text("Welcome to Infosas Telegram Bot")
+                .replyMarkup(getInlineKeyboard())
                 .build();
     }
 
-    private SendMessage updateHandler(Message message) {
-        if(isAdmin(message.getFrom().getUserName())){
+    private SendMessage updateHandler(long chatId, String username) {
+        if(isAdmin(username)){
             producerService.sendMessage(
                     QueueMessage.builder()
                         .type(MessageType.UPDATE)
-                        .chatId(message.getChatId())
+                        .chatId(chatId)
                         .build()
             );
             return SendMessage.builder()
-                    .chatId(message.getChatId())
-                    .text("Updated")
+                    .chatId(chatId)
+                    .text("Waiting for update ...")
                     .build();
         }else{
             return SendMessage.builder()
-                    .chatId(message.getChatId())
+                    .chatId(chatId)
                     .text("User is not admin. Command not allowed")
+                    .replyMarkup(getInlineKeyboard())
                     .build();
         }
     }
 
-    private SendMessage getMetricsHandler(Message message) {
+    private SendMessage getMetricsHandler(long chatId) {
         producerService.sendMessage(
                 QueueMessage.builder()
                     .type(MessageType.METRICS)
-                    .chatId(message.getChatId())
+                    .chatId(chatId)
                     .build()
         );
         return SendMessage.builder()
-                .chatId(message.getChatId())
-                .text("Metrics")
+                .chatId(chatId)
+                .text("Getting metrics ...")
                 .build();
     }
 
-    private ReplyKeyboardMarkup getCommandKeyboard() {
-        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
-        keyboardMarkup.setResizeKeyboard(true);
+    private InlineKeyboardMarkup getInlineKeyboard() {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
 
-        List<KeyboardRow> keyboard = new ArrayList<>();
+        InlineKeyboardButton startButton = new InlineKeyboardButton();
+        startButton.setText(Commands.getCommand(START).label());
+        startButton.setCallbackData(Commands.getCommand(START).command());
 
-        KeyboardRow firstRow = new KeyboardRow();
-        firstRow.add(Commands.getCommand(START).label());
-        firstRow.add(Commands.getCommand(GET_METRICS).label());
-        keyboard.add(firstRow);
+        InlineKeyboardButton getMetricsButton = new InlineKeyboardButton();
+        getMetricsButton.setText(Commands.getCommand(GET_METRICS).label());
+        getMetricsButton.setCallbackData(Commands.getCommand(GET_METRICS).command());
 
-        KeyboardRow secondRow = new KeyboardRow();
-        secondRow.add(Commands.getCommand(UPDATE).label());
-        keyboard.add(secondRow);
+        InlineKeyboardButton updateButton = new InlineKeyboardButton();
+        updateButton.setText(Commands.getCommand(UPDATE).label());
+        updateButton.setCallbackData(Commands.getCommand(UPDATE).command());
 
-        keyboardMarkup.setKeyboard(keyboard);
-        return keyboardMarkup;
+        List<InlineKeyboardButton> rowInlineOne = new ArrayList<>();
+        rowInlineOne.add(startButton);
+        rowInlineOne.add(getMetricsButton);
+
+        List<InlineKeyboardButton> rowInlineTwo = new ArrayList<>();
+        rowInlineTwo.add(updateButton);
+
+        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+        rowsInline.add(rowInlineOne);
+        rowsInline.add(rowInlineTwo);
+
+        inlineKeyboardMarkup.setKeyboard(rowsInline);
+
+        return inlineKeyboardMarkup;
     }
 
     private String getCommandKey(String message){

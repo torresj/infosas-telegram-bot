@@ -16,6 +16,6 @@ public class RabbitmqProducerService implements ProducerService {
 
     @Override
     public void sendMessage(QueueMessage message) {
-        rabbitTemplate.convertAndSend("commandsExchange","commands", message);
+        rabbitTemplate.convertAndSend("commandsExchange",message.getType().name(), message);
     }
 }
