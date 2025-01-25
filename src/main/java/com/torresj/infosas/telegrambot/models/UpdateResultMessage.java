@@ -9,5 +9,5 @@ import java.io.Serializable;
 @Getter
 public class UpdateResultMessage extends QueueMessage implements Serializable {
     private boolean success;
-    private long duration;
+    private String duration;
 }

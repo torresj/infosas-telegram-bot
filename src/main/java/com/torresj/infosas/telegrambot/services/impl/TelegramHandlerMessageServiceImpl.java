@@ -93,7 +93,7 @@ public class TelegramHandlerMessageServiceImpl implements TelegramHandlerMessage
             );
             return SendMessage.builder()
                     .chatId(chatId)
-                    .text("Waiting for update ...")
+                    .text("infosas is updating all the data, waiting for it to finish ...")
                     .build();
         }else{
             return SendMessage.builder()
