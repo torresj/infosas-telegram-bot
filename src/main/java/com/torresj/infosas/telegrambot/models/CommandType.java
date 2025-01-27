@@ -6,7 +6,8 @@ import lombok.Getter;
 public enum CommandType {
     START("/start"),
     UPDATE("/update_infosas_data"),
-    GET_METRICS("/get_metrics"),;
+    GET_METRICS("/get_metrics"),
+    GET_LISTS_STATUS("/get_metrics");
 
     private final String label;
 

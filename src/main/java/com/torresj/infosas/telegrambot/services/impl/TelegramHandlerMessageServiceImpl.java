@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.torresj.infosas.telegrambot.models.CommandType.GET_LISTS_STATUS;
 import static com.torresj.infosas.telegrambot.models.CommandType.GET_METRICS;
 import static com.torresj.infosas.telegrambot.models.CommandType.START;
 import static com.torresj.infosas.telegrambot.models.CommandType.UPDATE;
@@ -43,6 +44,7 @@ public class TelegramHandlerMessageServiceImpl implements TelegramHandlerMessage
                 case START -> startHandler(message.getChatId());
                 case UPDATE -> updateHandler(message.getChatId(), message.getFrom().getUserName());
                 case GET_METRICS -> getMetricsHandler(message.getChatId());
+                case GET_LISTS_STATUS -> getStatusHandler(message.getChatId());
             };
         } catch (IllegalArgumentException e) {
             log.error(e.getMessage());
@@ -60,6 +62,7 @@ public class TelegramHandlerMessageServiceImpl implements TelegramHandlerMessage
                 case START -> startHandler(chatId);
                 case UPDATE -> updateHandler(chatId, username);
                 case GET_METRICS -> getMetricsHandler(chatId);
+                case GET_LISTS_STATUS -> getStatusHandler(chatId);
             };
         } catch (IllegalArgumentException e) {
             log.error(e.getMessage());
@@ -117,6 +120,19 @@ public class TelegramHandlerMessageServiceImpl implements TelegramHandlerMessage
                 .build();
     }
 
+    private SendMessage getStatusHandler(long chatId) {
+        producerService.sendMessage(
+                QueueMessage.builder()
+                        .type(MessageType.STATUS)
+                        .chatId(chatId)
+                        .build()
+        );
+        return SendMessage.builder()
+                .chatId(chatId)
+                .text("Obteniendo el estado de las listas en Infosas...")
+                .build();
+    }
+
     private InlineKeyboardMarkup getInlineKeyboard() {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
 
@@ -132,6 +148,10 @@ public class TelegramHandlerMessageServiceImpl implements TelegramHandlerMessage
         updateButton.setText("Actualizar los datos en Infosas");
         updateButton.setCallbackData(Commands.getCommand(UPDATE).command());
 
+        InlineKeyboardButton statusButton = new InlineKeyboardButton();
+        updateButton.setText("Obtener el estado de las listas del SAS");
+        updateButton.setCallbackData(Commands.getCommand(GET_LISTS_STATUS).command());
+
         List<InlineKeyboardButton> rowInlineOne = new ArrayList<>();
         rowInlineOne.add(startButton);
         rowInlineOne.add(getMetricsButton);
@@ -139,9 +159,14 @@ public class TelegramHandlerMessageServiceImpl implements TelegramHandlerMessage
         List<InlineKeyboardButton> rowInlineTwo = new ArrayList<>();
         rowInlineTwo.add(updateButton);
 
+        List<InlineKeyboardButton> rowInlineThree = new ArrayList<>();
+        rowInlineThree.add(statusButton);
+
+
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
         rowsInline.add(rowInlineOne);
         rowsInline.add(rowInlineTwo);
+        rowsInline.add(rowInlineThree);
 
         inlineKeyboardMarkup.setKeyboard(rowsInline);
 

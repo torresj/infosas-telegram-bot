@@ -57,6 +57,6 @@ public class ResultHandleMessageServiceImpl implements ResultHandleMessageServic
                 "<b>Persona</b>                   |    " + metricsResultMessage.getUsers() + "\n" +
                 "<b>Oposicion</b>                |    " + metricsResultMessage.getExams() + "\n" +
                 "<b>Bolsa</b>                        |    " + metricsResultMessage.getJobBanks() + "\n" +
-                "<b>Bolsa específicas</b>   |    " + metricsResultMessage.getSpecificJobBanks() + "\n";
+                "<b>Bolsa específica</b>    |    " + metricsResultMessage.getSpecificJobBanks() + "\n";
     }
 }
