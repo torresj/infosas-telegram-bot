@@ -37,7 +37,7 @@ public class ResultHandleMessageServiceImpl implements ResultHandleMessageServic
     private void handleUpdateResultMessage(UpdateResultMessage updateResultMessage) {
         SendMessage messageToSend = SendMessage.builder()
                 .chatId(updateResultMessage.getChatId())
-                .text("Infosas data updated in " + updateResultMessage.getDuration())
+                .text("Datod de Infosas actualizados en " + updateResultMessage.getDuration())
                 .build();
         infosasBot.sendMessage(messageToSend);
     }
@@ -52,11 +52,11 @@ public class ResultHandleMessageServiceImpl implements ResultHandleMessageServic
     }
 
     private String createMetricsTable(MetricsResultMessage metricsResultMessage) {
-        return "<b> TYPE                          |   COUNT</b>\n" +
-                "-------------------------------\n" +
-                "<b>Staff</b>                          |    " + metricsResultMessage.getUsers() + "\n" +
-                "<b>Exams</b>                       |    " + metricsResultMessage.getExams() + "\n" +
-                "<b>Job banks</b>                |    " + metricsResultMessage.getJobBanks() + "\n" +
-                "<b>Specific job banks</b>  |    " + metricsResultMessage.getSpecificJobBanks() + "\n";
+        return "<b> ENTIDAD                 |   CANTIDAD</b>\n" +
+                "------------------------------------\n" +
+                "<b>Persona</b>                   |    " + metricsResultMessage.getUsers() + "\n" +
+                "<b>Oposicion</b>                |    " + metricsResultMessage.getExams() + "\n" +
+                "<b>Bolsa</b>                        |    " + metricsResultMessage.getJobBanks() + "\n" +
+                "<b>Bolsa específicas</b>   |    " + metricsResultMessage.getSpecificJobBanks() + "\n";
     }
 }

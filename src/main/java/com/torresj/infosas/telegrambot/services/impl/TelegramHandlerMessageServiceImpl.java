@@ -70,7 +70,7 @@ public class TelegramHandlerMessageServiceImpl implements TelegramHandlerMessage
     private SendMessage defaultHandler(long chatId) {
         return SendMessage.builder()
                 .chatId(chatId)
-                .text("Unrecognized command, try again")
+                .text("Comando no reconocido, por favor intentelo de nuevo")
                 .replyMarkup(getInlineKeyboard())
                 .build();
     }
@@ -78,7 +78,7 @@ public class TelegramHandlerMessageServiceImpl implements TelegramHandlerMessage
     private SendMessage startHandler(long chatId) {
         return SendMessage.builder()
                 .chatId(chatId)
-                .text("Welcome to Infosas Telegram Bot")
+                .text("Bienvenido a Infosas Telegram Bot")
                 .replyMarkup(getInlineKeyboard())
                 .build();
     }
@@ -93,12 +93,12 @@ public class TelegramHandlerMessageServiceImpl implements TelegramHandlerMessage
             );
             return SendMessage.builder()
                     .chatId(chatId)
-                    .text("infosas is updating all the data, waiting for it to finish ...")
+                    .text("Actualizando los datos en Infosas, esperando a que finalice ...")
                     .build();
         }else{
             return SendMessage.builder()
                     .chatId(chatId)
-                    .text("User is not admin. Command not allowed")
+                    .text("El usuario no es ADMIN. Comnando no permitido")
                     .replyMarkup(getInlineKeyboard())
                     .build();
         }
@@ -113,7 +113,7 @@ public class TelegramHandlerMessageServiceImpl implements TelegramHandlerMessage
         );
         return SendMessage.builder()
                 .chatId(chatId)
-                .text("Getting metrics ...")
+                .text("Obteniendo las métricas de Infosas...")
                 .build();
     }
 
@@ -121,15 +121,15 @@ public class TelegramHandlerMessageServiceImpl implements TelegramHandlerMessage
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
 
         InlineKeyboardButton startButton = new InlineKeyboardButton();
-        startButton.setText(Commands.getCommand(START).label());
+        startButton.setText("Inicio");
         startButton.setCallbackData(Commands.getCommand(START).command());
 
         InlineKeyboardButton getMetricsButton = new InlineKeyboardButton();
-        getMetricsButton.setText(Commands.getCommand(GET_METRICS).label());
+        getMetricsButton.setText("Obtener métricas de Infosas");
         getMetricsButton.setCallbackData(Commands.getCommand(GET_METRICS).command());
 
         InlineKeyboardButton updateButton = new InlineKeyboardButton();
-        updateButton.setText(Commands.getCommand(UPDATE).label());
+        updateButton.setText("Actualizar los datos en Infosas");
         updateButton.setCallbackData(Commands.getCommand(UPDATE).command());
 
         List<InlineKeyboardButton> rowInlineOne = new ArrayList<>();
