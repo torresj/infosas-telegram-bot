@@ -149,24 +149,27 @@ public class TelegramHandlerMessageServiceImpl implements TelegramHandlerMessage
         updateButton.setCallbackData(Commands.getCommand(UPDATE).command());
 
         InlineKeyboardButton statusButton = new InlineKeyboardButton();
-        updateButton.setText("Obtener el estado de las listas del SAS");
-        updateButton.setCallbackData(Commands.getCommand(GET_LISTS_STATUS).command());
+        statusButton.setText("Obtener el estado de las listas del SAS");
+        statusButton.setCallbackData(Commands.getCommand(GET_LISTS_STATUS).command());
 
         List<InlineKeyboardButton> rowInlineOne = new ArrayList<>();
         rowInlineOne.add(startButton);
-        rowInlineOne.add(getMetricsButton);
 
         List<InlineKeyboardButton> rowInlineTwo = new ArrayList<>();
-        rowInlineTwo.add(updateButton);
+        rowInlineTwo.add(getMetricsButton);
 
         List<InlineKeyboardButton> rowInlineThree = new ArrayList<>();
-        rowInlineThree.add(statusButton);
+        rowInlineThree.add(updateButton);
+
+        List<InlineKeyboardButton> rowInlineFour = new ArrayList<>();
+        rowInlineFour.add(statusButton);
 
 
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
         rowsInline.add(rowInlineOne);
         rowsInline.add(rowInlineTwo);
         rowsInline.add(rowInlineThree);
+        rowsInline.add(rowInlineFour);
 
         inlineKeyboardMarkup.setKeyboard(rowsInline);
 

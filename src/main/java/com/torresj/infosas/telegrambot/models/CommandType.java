@@ -7,7 +7,7 @@ public enum CommandType {
     START("/start"),
     UPDATE("/update_infosas_data"),
     GET_METRICS("/get_metrics"),
-    GET_LISTS_STATUS("/get_metrics");
+    GET_LISTS_STATUS("/get_list_status");
 
     private final String label;
 
