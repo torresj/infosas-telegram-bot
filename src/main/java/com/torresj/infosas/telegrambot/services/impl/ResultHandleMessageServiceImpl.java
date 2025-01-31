@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.torresj.infosas.telegrambot.bots.InfosasBot;
 import com.torresj.infosas.telegrambot.models.MetricsResultMessage;
 import com.torresj.infosas.telegrambot.models.QueueMessage;
+import com.torresj.infosas.telegrambot.models.StatusesResultMessage;
 import com.torresj.infosas.telegrambot.models.UpdateResultMessage;
+import com.torresj.infosas.telegrambot.models.UrlType;
 import com.torresj.infosas.telegrambot.services.ResultHandleMessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +30,7 @@ public class ResultHandleMessageServiceImpl implements ResultHandleMessageServic
             switch (queueMessage.getType()) {
                 case UPDATE -> handleUpdateResultMessage(objectMapper.readValue(message, UpdateResultMessage.class));
                 case METRICS -> handleMetricsResultMessage(objectMapper.readValue(message, MetricsResultMessage.class));
+                case STATUS -> handleStatusesResultMessage(objectMapper.readValue(message, StatusesResultMessage.class));
             }
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
@@ -46,17 +49,70 @@ public class ResultHandleMessageServiceImpl implements ResultHandleMessageServic
         SendMessage messageToSend = SendMessage.builder()
                 .chatId(metricsResultMessage.getChatId())
                 .text(createMetricsTable(metricsResultMessage))
-                .parseMode(ParseMode.HTML)
+                .parseMode(ParseMode.MARKDOWNV2)
                 .build();
         infosasBot.sendMessage(messageToSend);
     }
 
     private String createMetricsTable(MetricsResultMessage metricsResultMessage) {
-        return "<b> ENTIDAD                 |   CANTIDAD</b>\n" +
-                "------------------------------------\n" +
-                "<b>Persona</b>                   |    " + metricsResultMessage.getUsers() + "\n" +
-                "<b>Oposicion</b>                |    " + metricsResultMessage.getExams() + "\n" +
-                "<b>Bolsa</b>                        |    " + metricsResultMessage.getJobBanks() + "\n" +
-                "<b>Bolsa específica</b>    |    " + metricsResultMessage.getSpecificJobBanks() + "\n";
+        StringBuilder builder = new StringBuilder();
+        builder.append("```\n");
+        builder.append("| ENTIDAD              | CANTIDAD \n");
+        builder.append("----------------------------------\n");
+        builder.append("| Personas             | ").append(metricsResultMessage.getUsers()).append("\n");
+        builder.append("| Oposiciones          | ").append(metricsResultMessage.getExams()).append("\n");
+        builder.append("| Bolsas               | ").append(metricsResultMessage.getJobBanks()).append("\n");
+        builder.append("| Bolsas específicas   | ").append(metricsResultMessage.getUsers()).append("\n");
+        builder.append("```");
+        return builder.toString();
+    }
+
+    private void handleStatusesResultMessage(StatusesResultMessage statusesResultMessage) {
+        SendMessage messageToSend = SendMessage.builder()
+                .chatId(statusesResultMessage.getChatId())
+                .text(createStatusesTable(statusesResultMessage))
+                .parseMode(ParseMode.MARKDOWNV2)
+                .build();
+        infosasBot.sendMessage(messageToSend);
+    }
+
+    private String createStatusesTable(StatusesResultMessage statusesResultMessage) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("```\n");
+        builder.append("  Listas provisionales ❌ / definitivas ✅ \n\n");
+        builder.append("|------------------------------------------------|\n");
+        statusesResultMessage.getStatuses().forEach( urlStatus ->
+                builder.append("| ")
+                        .append(formatTypeName(42,urlStatus.getType()))
+                        .append(urlStatus.isProvisional() ? "| ❌ |" : "| ✅ |")
+                        .append("\n")
+                        .append("|------------------------------------------------|\n")
+        );
+        builder.append("```");
+        return builder.toString();
+    }
+
+    private String formatTypeName(int size, UrlType urlType) {
+        String typeNameInSpanish = switch (urlType){
+            case TCAE_JOB_BANK -> "Bolsa TCAE";
+            case NURSE_JOB_BANK -> "Bolsa enfemero/a";
+            case FISIO_JOB_BANK -> "Bolsa fisioterapeuta";
+            case SPEECH_THERAPIST_JOB_BANK -> "Bolsa logopeda";
+            case OCCUPATIONAL_THERAPY_JOB_BANK -> "Bolsa terapeuta ocupacional";
+            case NURSE_FAMILY_JOB_BANK -> "Bolsa esp. en enfermería familiar";
+            case NURSE_GYNECOLOGY_JOB_BANK -> "Bolsa esp. en enfermería ginecológica";
+            case NURSE_PEDIATRICIAN_JOB_BANK -> "Bolsa esp. en enfermería pediátrica";
+            case NURSE_MENTAL_HEALTH_JOB_BANK -> "Bolsa esp. en enfermería de salud mental";
+            case NURSE_WORK_JOB_BANK -> "Bolsa esp. en enfermería del trabajo";
+            case NURSE_CRITICS_SPECIFIC_JOB_BANK -> "Bolsa enfermería en cuidados críticos";
+            case NURSE_DIALYSIS_SPECIFIC_JOB_BANK -> "Bolsa enfermería en dialisis";
+            case NURSE_MENTAL_HEALTH_SPECIFIC_JOB_BANK -> "Bolsa enfermería en salud mental";
+            case NURSE_NEONATES_SPECIFIC_JOB_BANK -> "Bolsa enfermería en neonatos";
+            case NURSE_NUCLEAR_SPECIFIC_JOB_BANK -> "Bolsa enfermería en medicina nuclear";
+            case NURSE_SURGERY_ROOM_SPECIFIC_JOB_BANK -> "Bolsa enfemería en quirófano";
+            case NURSE_EXAM -> "Oposición en enfemería";
+            case TCAE_EXAM -> "Oposición en TCAE";
+        };
+        return String.format("%-" + size + "s", typeNameInSpanish);
     }
 }
