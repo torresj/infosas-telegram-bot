@@ -1,6 +1,5 @@
 package com.torresj.infosas.telegrambot.services.impl;
 
-import com.torresj.infosas.telegrambot.services.ConsumerService;
 import com.torresj.infosas.telegrambot.services.ResultHandleMessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,14 +9,18 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class RabbitmqConsumerService implements ConsumerService {
+public class RabbitmqConsumerService {
 
     private final ResultHandleMessageService resultHandleMessageService;
 
     @RabbitListener(queues = "resultsQueue")
-    @Override
-    public void consumeMessage(String message) {
+    public void consumeResultMessage(String message) {
         log.info("Received result message {}", message);
         resultHandleMessageService.handleMessage(message);
+    }
+
+    @RabbitListener(queues = "notificationsQueue")
+    public void consumeNotificationMessage(String message) {
+        log.info("Received notification message {}", message);
     }
 }
