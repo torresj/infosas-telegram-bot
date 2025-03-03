@@ -62,7 +62,7 @@ public class ResultHandleMessageServiceImpl implements ResultHandleMessageServic
         builder.append("| Personas             | ").append(metricsResultMessage.getUsers()).append("\n");
         builder.append("| Oposiciones          | ").append(metricsResultMessage.getExams()).append("\n");
         builder.append("| Bolsas               | ").append(metricsResultMessage.getJobBanks()).append("\n");
-        builder.append("| Bolsas específicas   | ").append(metricsResultMessage.getUsers()).append("\n");
+        builder.append("| Bolsas específicas   | ").append(metricsResultMessage.getSpecificJobBanks()).append("\n");
         builder.append("```");
         return builder.toString();
     }
