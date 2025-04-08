@@ -2,6 +2,14 @@ package com.torresj.infosas.telegrambot.models;
 
 public enum UrlType {
     TCAE_JOB_BANK,
+    TEAP_JOB_BANK,
+    TEDN_JOB_BANK,
+    TEDS_JOB_BANK,
+    TEL_JOB_BANK,
+    TEMN_JOB_BANK,
+    TERD_JOB_BANK,
+    TER_JOB_BANK,
+    TF_JOB_BANK,
     NURSE_JOB_BANK,
     FISIO_JOB_BANK,
     SPEECH_THERAPIST_JOB_BANK,
@@ -20,3 +28,4 @@ public enum UrlType {
     NURSE_EXAM,
     TCAE_EXAM
 }
+

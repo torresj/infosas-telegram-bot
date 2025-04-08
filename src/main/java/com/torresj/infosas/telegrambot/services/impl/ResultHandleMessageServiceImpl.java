@@ -40,7 +40,7 @@ public class ResultHandleMessageServiceImpl implements ResultHandleMessageServic
     private void handleUpdateResultMessage(UpdateResultMessage updateResultMessage) {
         SendMessage messageToSend = SendMessage.builder()
                 .chatId(updateResultMessage.getChatId())
-                .text("Datod de Infosas actualizados en " + updateResultMessage.getDuration())
+                .text("Datos de Infosas actualizados en " + updateResultMessage.getDuration())
                 .build();
         infosasBot.sendMessage(messageToSend);
     }
@@ -95,6 +95,14 @@ public class ResultHandleMessageServiceImpl implements ResultHandleMessageServic
     private String formatTypeName(int size, UrlType urlType) {
         String typeNameInSpanish = switch (urlType){
             case TCAE_JOB_BANK -> "Bolsa TCAE";
+            case TEAP_JOB_BANK -> "Bolsa TEAP";
+            case TEDN_JOB_BANK -> "Bolsa TEDN";
+            case TEDS_JOB_BANK -> "Bolsa TEDS";
+            case TEL_JOB_BANK -> "Bolsa TEL";
+            case TEMN_JOB_BANK -> "Bolsa TEMN";
+            case TERD_JOB_BANK -> "Bolsa TERD";
+            case TER_JOB_BANK -> "Bolsa TER";
+            case TF_JOB_BANK -> "Bolsa TF";
             case NURSE_JOB_BANK -> "Bolsa enfemero/a";
             case FISIO_JOB_BANK -> "Bolsa fisioterapeuta";
             case SPEECH_THERAPIST_JOB_BANK -> "Bolsa logopeda";
